@@ -33,3 +33,12 @@ class Neo4jManager:
             "Match (x:%(table)s %(values)s)" "Return x" % node_values
         )
         return results
+
+    def add_node(self, node_values):
+        node_values["values"] = self.__convert_to_js_object_str(
+            node_values.get("values")
+        )
+        results = self.__execute_query(
+            "Merge (x:%(table)s %(values)s)" "Return x" % node_values
+        )
+        return results
