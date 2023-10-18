@@ -42,3 +42,23 @@ class Neo4jManager:
             "Merge (x:%(table)s %(values)s)" "Return x" % node_values
         )
         return results
+
+    def set_relationship(self, from_node_values, relationship, to_node_values):
+        from_node_values["values"] = self.__convert_to_js_object_str(
+            from_node_values.get("values")
+        )
+        to_node_values["values"] = self.__convert_to_js_object_str(
+            to_node_values.get("values")
+        )
+        from_match_query = "Match (from:%(table)s %(values)s)" % from_node_values
+        to_match_query = "Match (to:%(table)s %(values)s)" % to_node_values
+        set_relationship_query = "Merge (from) - [rel:%s] -> (to)" % relationship
+        results = self.__execute_query(
+            f"""
+            {from_match_query}
+            {to_match_query}
+            {set_relationship_query}
+            Return rel
+        """
+        )
+        return results
