@@ -5,21 +5,16 @@
 - you can use easy like below code
 ### usecase
 ```
-    with GraphDatabase.driver(URI, auth=AUTH) as driver:
-        add_node(
-            driver, node_values={"table": "manager", "values": {"name": "wrapr"}}
-        )
-    
-        get_node(
-            driver, node_values=   {"table": "manager", "values": {"name": "wrapr"}}
-        )
+    from src.neo4j_manager import Neo4jManager
 
-        set_relationship(
-            driver,
-            from_node_values={"table": "User", "values": {"name": "shaan"}},
-            to_node_values={"table": "User", "values": {"name": "lee"}},
-            relationship="is_same_people"
-        )
+    manager = Neo4jManager(
+        <your neo4j workspace uri>,
+        <your neo4j workspace username>,
+        <your neo4j workspace password>,
+    )
+
+    node = manager.get_node(node_values={"table": "User", "values": {"name": "test"}})
+
 ```
 ### Return value
 - EagerResult
