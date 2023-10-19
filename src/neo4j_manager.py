@@ -5,6 +5,15 @@ from neo4j import GraphDatabase
 
 
 class Neo4jManager:
+    """
+    neo4j driver manager
+
+    args:
+        neo4j uri: require, str
+        neo4j username: require, str
+        neo4j password: require, str
+    """
+
     def __init__(self, uri, username, password):
         self.uri = uri
         self.auth = (username, password)
@@ -46,7 +55,6 @@ class Neo4jManager:
             f"Match (x:{node_values.get('table')} {node_values.get('values')})"
             "Return x"
         )
-        # "Match (x:%(table)s %(values)s)" "Return x" % node_values
         return results
 
     def add_node(self, node_values):
@@ -87,8 +95,6 @@ class Neo4jManager:
 
         Returns:
             type: EagerResult
-
-
         """
         from_node_values["values"] = self.__convert_to_js_object_str(
             from_node_values.get("values")
@@ -101,6 +107,28 @@ class Neo4jManager:
             Match (from:{from_node_values.get('table')} {from_node_values.get('values')})
             Match (to:{to_node_values.get('table')} {to_node_values.get('values')})
             Merge r=(from)-[rel:{relationship}]->(to)
+            Return r
+        """
+        )
+        return results
+
+    def get_relationed_node(self, node_values):
+        """
+        get any relationshiped node with given node
+
+        node_values (dict):
+            table: require
+            values: require (about node condition or data)
+
+        Returns:
+            EagerResult
+        """
+        node_values["values"] = self.__convert_to_js_object_str(
+            node_values.get("values")
+        )
+        results = self.__execute_query(
+            f"""
+            Match ({node_values.get('table')} {node_values.get('values')}) <--> (r)
             Return r
         """
         )
