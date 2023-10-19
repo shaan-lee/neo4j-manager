@@ -133,3 +133,22 @@ class Neo4jManager:
         """
         )
         return results
+
+    def get_relationship(self, relationship=""):
+        """
+        get all node of relathined
+
+        relathionship: optional, str defalt to ""(give all about relationships)
+
+        Returns:
+            EagerResult
+        """
+        if relationship:
+            relationship = ":" + relationship
+        results = self.__execute_query(
+            f"""
+            Match r=()-[{relationship}]->()
+            Return r
+        """
+        )
+        return results
