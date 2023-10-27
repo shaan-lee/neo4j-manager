@@ -134,7 +134,7 @@ class Neo4jManager:
         )
         return results
 
-    def get_relationship(self, relationship=""):
+    def get_related_nodes(self, relationship=""):
         """
         get all node of relathined
 
