@@ -77,6 +77,26 @@ class Neo4jManager:
         )
         return results
 
+    def delete_node(self, node_values):
+        """
+        delete node with node_values
+
+        node_values (dict):
+            table: require
+            values: require (about node condition or data)
+
+        Returns:
+            NONE
+        """
+        node_values["values"] = self.__convert_to_js_object_str(
+            node_values.get("values")
+        )
+        self.__execute_query(
+            f"Match (x:{node_values.get('table')} {node_values.get('values')}) - [r1] -> ()"
+            f"Match (x:{node_values.get('table')} {node_values.get('values')}) <- [r2] - ()"
+            "Delete r1, r2, x"
+        )
+
     def set_relationship(self, from_node_values, to_node_values, relationship):
         """
         set relationship each matched node
