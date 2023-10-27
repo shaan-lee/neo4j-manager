@@ -37,7 +37,7 @@ class Neo4jManager:
         return_str += "}"
         return return_str
 
-    def get_node(self, node_values):
+    def get_node(self, table, conditions):
         """
         get node match with given node_values
 
@@ -48,16 +48,11 @@ class Neo4jManager:
         Returns:
             type: EagerResult
         """
-        node_values["values"] = self.__convert_to_js_object_str(
-            node_values.get("values")
-        )
-        results = self.__execute_query(
-            f"Match (x:{node_values.get('table')} {node_values.get('values')})"
-            "Return x"
-        )
+        conditions = self.__convert_to_js_object_str(conditions)
+        results = self.__execute_query(f"Match (x:{table} {conditions})" "Return x")
         return results
 
-    def add_node(self, node_values):
+    def add_node(self, table, conditions):
         """
         add node with node_values
 
@@ -68,13 +63,8 @@ class Neo4jManager:
         Returns:
             type: EagerResult
         """
-        node_values["values"] = self.__convert_to_js_object_str(
-            node_values.get("values")
-        )
-        results = self.__execute_query(
-            f"Merge (x:{node_values.get('table')} {node_values.get('values')})"
-            "Return x"
-        )
+        conditions = self.__convert_to_js_object_str(conditions)
+        results = self.__execute_query(f"Merge (x:{table} {conditions})" "Return x")
         return results
 
     def delete_node(self, node_values):
