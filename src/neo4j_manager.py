@@ -37,118 +37,120 @@ class Neo4jManager:
         return_str += "}"
         return return_str
 
-    def get_node(self, table, conditions):
+    def get_node(
+        self,
+        conditions: dict,
+        label: str = None,
+    ):
         """
-        get node match with given node_values
+        get node about match with conditions, label
+        when table is empty, find in all of label
 
-        node_values (dict):
-            table: require
-            values: require (about node condition or data)
+        label (str): optional (default to None. if you can identify node only condition, you can keep empty)
+        conditions (dict): require (about node property)
 
         Returns:
             type: EagerResult
         """
         conditions = self.__convert_to_js_object_str(conditions)
-        results = self.__execute_query(f"Match (x:{table} {conditions})" "Return x")
+        results = self.__execute_query(f"Match (x:{label} {conditions})" "Return x")
         return results
 
-    def add_node(self, table, conditions):
+    def add_node(self, conditions: dict, label: str):
         """
-        add node with node_values
+        add node about conditions, label
 
-        node_values (dict):
-            table: require
-            values: require (about node condition or data)
+        label (str): require
+        conditions (dict): require (about node property)
 
         Returns:
             type: EagerResult
         """
         conditions = self.__convert_to_js_object_str(conditions)
-        results = self.__execute_query(f"Merge (x:{table} {conditions})" "Return x")
+        results = self.__execute_query(f"Merge (x:{label} {conditions})" "Return x")
         return results
 
-    def delete_node(self, node_values):
+    def delete_node(self, conditions: dict, label: str = None):
         """
-        delete node with node_values
+        delete node about match with conditions, label
 
-        node_values (dict):
-            table: require
-            values: require (about node condition or data)
+        label (str): optioinal
+        conditions (dict): require (about node property)
 
         Returns:
             NONE
         """
-        node_values["values"] = self.__convert_to_js_object_str(
-            node_values.get("values")
-        )
+        conditions = self.__convert_to_js_object_str(conditions)
         self.__execute_query(
-            f"Match (x:{node_values.get('table')} {node_values.get('values')}) - [r1] -> ()"
-            f"Match (x:{node_values.get('table')} {node_values.get('values')}) <- [r2] - ()"
+            f"Match (x:{label} {conditions}) - [r1] -> ()"
+            f"Match (x:{label} {conditions}) <- [r2] - ()"
             "Delete r1, r2, x"
         )
 
-    def set_relationship(self, from_node_values, to_node_values, relationship):
+    def set_relationship(
+        self,
+        relationship: str,
+        from_condition: dict,
+        from_label: str,
+        to_condition: dict,
+        to_label: str,
+    ):
         """
         set relationship each matched node
 
-        from_node_values (dict):
-            having relationship node values
-            table: require
-            values: require (about node condition or data)
-
-        to_node_values (dict):
-            target relationship node values
-            table: require
-            values: require (about node condition or data)
-
         relationship (str): require (relationship name to use)
+
+        from_condition (dict): require
+        from_label (str): require
+
+        to_condition (dict): require
+        to_label (str): require
 
         Returns:
             type: EagerResult
         """
-        from_node_values["values"] = self.__convert_to_js_object_str(
-            from_node_values.get("values")
-        )
-        to_node_values["values"] = self.__convert_to_js_object_str(
-            to_node_values.get("values")
-        )
+        from_condition = self.__convert_to_js_object_str(from_condition)
+        to_condition = self.__convert_to_js_object_str(to_condition)
         results = self.__execute_query(
             f"""
-            Match (from:{from_node_values.get('table')} {from_node_values.get('values')})
-            Match (to:{to_node_values.get('table')} {to_node_values.get('values')})
+            Match (from:{from_label} {from_condition})
+            Match (to:{to_label} {to_condition})
+            With from, to
             Merge r=(from)-[rel:{relationship}]->(to)
             Return r
         """
         )
         return results
 
-    def get_relationed_node(self, node_values):
+    def get_relationed_nodes_from_node(
+        self,
+        conditions: dict,
+        label: str = None,
+    ):
         """
-        get any relationshiped node with given node
+        get any relationshiped nodes from match node
 
-        node_values (dict):
-            table: require
-            values: require (about node condition or data)
+        conditions: require
+        label: optional
 
         Returns:
             EagerResult
         """
-        node_values["values"] = self.__convert_to_js_object_str(
-            node_values.get("values")
-        )
+        conditions = self.__convert_to_js_object_str(conditions)
         results = self.__execute_query(
             f"""
-            Match ({node_values.get('table')} {node_values.get('values')}) <--> (r)
+            Match ({label} {conditions}) <--> (r)
             Return r
         """
         )
         return results
 
-    def get_related_nodes(self, relationship=""):
+    def get_relations(self, relationship=""):
         """
-        get all node of relathined
+        get all relations about relationship name
+        if relationship arg is empty, get all about relationship name
 
-        relathionship: optional, str defalt to ""(give all about relationships)
+        relathionship: optional, str default to ""
 
         Returns:
             EagerResult
