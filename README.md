@@ -2,6 +2,14 @@
 
 - this repository does managing neo4j cypher query to use easy
 
+# Run neo4j in docker
+```
+docker run -d\
+    --restart always \
+    --publish=7474:7474 --publish=7687:7687 \
+    neo4j
+```
+
 # How to use?
 
 - you can use easy like below code
